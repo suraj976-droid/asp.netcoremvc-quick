@@ -1,0 +1,81 @@
+Dropdown 
+
+example
+:Frontend
+
+@model AddDesignation
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h3 class="fw-bold">Edit Designation</h3>
+            <form method="post" asp-action="EditDesignation">
+                <input type="hidden" asp-for="DesigID" />
+                <div class="mb-3">
+                    <label asp-for="DesigName" class="form-label">Designation Name</label>
+                    <input asp-for="DesigName" class="form-control" />
+                    <span asp-validation-for="DesigName" class="text-danger"></span>
+                </div>
+
+
+                <div class="mb-3">
+                    <label asp-for="DeptID" class="form-label">Department</label>
+                    <select asp-for="DeptID" class="form-control">
+                        <option value="">Select Department</option>
+                        @foreach (var dept in ViewBag.Departments)
+                        {
+                            <option value="@dept.DeptID">@dept.DeptName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="DeptID" class="text-danger"></span>
+                </div>
+
+
+
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label">Status</label>
+                    <select asp-for="Status" class="form-control">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+Controller code:
+
+
+//Display Dropdown Data from here
+ public IActionResult EditDesignation(int id)
+        {
+            var data = db.Designations.Find(id);
+            if (data == null)
+            {
+                return NotFound();
+            }
+            ViewBag.Departments = db.Departments.ToList(); // Populate dropdown for departments
+            return View(data);
+        }
+
+
+
+        // EditDesignation: Handle form submission for editing
+        [HttpPost]
+        public IActionResult EditDesignation(AddDesignation desig)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Designations.Update(desig);
+                db.SaveChanges();
+                TempData["upd"] = "Designation Updated Successfully!!";
+                return RedirectToAction("Index");
+            }
+            ViewBag.Departments = db.Departments.ToList(); // Repopulate dropdown if validation fails
+            return View(desig);
+        }
